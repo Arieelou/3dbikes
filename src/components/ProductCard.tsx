@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Settings, Award } from 'lucide-react';
+import SmartImage from './SmartImage';
 
 interface ProductCardProps {
   name: string;
@@ -21,20 +22,26 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, description, image, ind
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 border border-slate-700 group-hover:border-blue-500/50">
         {/* Glow Effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
-        
+
         {/* Image */}
         <div className="relative overflow-hidden h-64">
-          <motion.img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-            whileHover={{ rotate: [0, 1, -1, 0] }}
-            transition={{ duration: 0.5 }}
-          />
-          
+          <motion.div
+            className="w-full h-full"
+            whileHover={{ rotate: [0, 1, -1, 0], scale: 1.1 }}
+            transition={{ duration: 0.7 }}
+          >
+            <SmartImage
+              src={image}
+              alt={name}
+              className="w-full h-full"
+              widths={[480, 800, 1200]}
+              sizes="(max-width: 1024px) 100vw, 33vw"
+            />
+          </motion.div>
+
           {/* Dark Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/50 to-transparent"></div>
-          
+
           {/* Performance Badge */}
           <div className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-full text-xs font-['Montserrat'] font-bold tracking-wide">
             🏍️ PERFORMANCE
@@ -49,7 +56,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, description, image, ind
           >
             {name}
           </motion.h3>
-          
+
           <p className="text-slate-300 text-sm leading-relaxed mb-6 group-hover:text-slate-200 transition-colors">
             {description}
           </p>
