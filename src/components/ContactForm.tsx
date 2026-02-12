@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, CheckCircle } from 'lucide-react';
 
@@ -11,6 +11,17 @@ const ContactForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const isMountedRef = useRef(true);
+  const resetSubmittedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (resetSubmittedTimeoutRef.current) {
+        clearTimeout(resetSubmittedTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -42,13 +53,22 @@ const ContactForm: React.FC = () => {
     
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
+
+    if (!isMountedRef.current) return;
     
     setIsSubmitting(false);
     setIsSubmitted(true);
     setFormData({ name: '', email: '', message: '' });
     
     // Reset success message after 3 seconds
-    setTimeout(() => setIsSubmitted(false), 3000);
+    if (resetSubmittedTimeoutRef.current) {
+      clearTimeout(resetSubmittedTimeoutRef.current);
+    }
+    resetSubmittedTimeoutRef.current = setTimeout(() => {
+      if (isMountedRef.current) {
+        setIsSubmitted(false);
+      }
+    }, 3000);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

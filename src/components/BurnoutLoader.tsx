@@ -1,4 +1,3 @@
-import React from 'react';
 import { m as motion, useReducedMotion } from 'framer-motion';
 import { Bike } from 'lucide-react';
 

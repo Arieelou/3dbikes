@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const CGU: React.FC = () => {
+const Cgu: React.FC = () => {
   return (
     <div className="min-h-screen pt-24 pb-16 px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900 relative overflow-hidden">
       {/* Background Pattern */}
@@ -176,4 +176,4 @@ const CGU: React.FC = () => {
   );
 };
 
-export default CGU;
+export default Cgu;

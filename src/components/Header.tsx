@@ -3,30 +3,41 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Bike, Menu, X } from 'lucide-react';
 
+const NAV_ITEMS = [
+  { path: '/', label: 'Accueil' },
+  { path: '/produits', label: 'Nos Motos' },
+  { path: '/contact', label: 'Contact' },
+  { path: '/cgu', label: 'CGU' },
+];
+
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
+    let frame = 0;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        setIsScrolled(window.scrollY > 50);
+        frame = 0;
+      });
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
-
-  const navItems = [
-    { path: '/', label: 'Accueil' },
-    { path: '/produits', label: 'Nos Motos' },
-    { path: '/contact', label: 'Contact' },
-    { path: '/cgu', label: 'CGU' }
-  ];
 
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-slate-900/95 backdrop-blur-md shadow-2xl border-b border-blue-500/30"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b border-blue-500/30 ${
+        isScrolled ? 'bg-slate-900/95 shadow-2xl' : 'bg-slate-900/80 shadow-lg'
+      }`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
@@ -54,7 +65,7 @@ const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -79,8 +90,12 @@ const Header: React.FC = () => {
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             className="md:hidden text-white hover:text-blue-400 transition-colors p-2 rounded-lg hover:bg-white/10"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -89,12 +104,13 @@ const Header: React.FC = () => {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <motion.nav
+            id="mobile-navigation"
             className="md:hidden mt-4 pt-4 border-t border-blue-500/30 bg-slate-900/95 backdrop-blur-md rounded-lg shadow-2xl"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
           >
-            {navItems.map((item) => (
+            {NAV_ITEMS.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}

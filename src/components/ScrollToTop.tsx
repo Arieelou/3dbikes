@@ -6,18 +6,34 @@ function prefersReducedMotion() {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
+function findAnchorTarget(hash: string) {
+  const id = hash.startsWith('#') ? hash.slice(1) : hash;
+  if (!id) return null;
+
+  const decodedId = decodeURIComponent(id);
+  const targetById = document.getElementById(decodedId);
+  if (targetById) return targetById;
+
+  try {
+    return document.querySelector(hash);
+  } catch {
+    return null;
+  }
+}
+
 export default function ScrollToTop() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    // Si on navigue vers une ancre (#section), respecte l’intention
+    // Si on navigue vers une ancre (#section), respecte l'intention
     if (hash) {
-      const el = document.querySelector(hash);
+      const el = findAnchorTarget(hash);
       if (el) {
         el.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
         return;
       }
     }
+
     // Sinon, remonter en haut
     window.scrollTo({ top: 0, left: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   }, [pathname, hash]);

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Settings, Award } from 'lucide-react';
 import SmartImage from './SmartImage';
@@ -35,8 +35,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, description, image, ind
               src={image}
               alt={name}
               className="w-full h-full object-cover"
-              widths={[480, 800]}
+              widths={[320, 480, 640, 800]}
               sizes="(max-width: 1024px) 100vw, 33vw"
+              aspect={4 / 3}
             />
           </motion.div>
 
@@ -102,4 +103,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, description, image, ind
   );
 };
 
-export default ProductCard;
+export default memo(ProductCard);

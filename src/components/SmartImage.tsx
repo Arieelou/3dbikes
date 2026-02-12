@@ -4,21 +4,15 @@ type SmartImageProps = {
   src: string;
   alt: string;
   className?: string;
-  // Largeurs à générer pour le srcSet
   widths?: number[];
-  // Attribut sizes pour guider le navigateur
   sizes?: string;
-  // Force le chargement prioritaire (hero)
   priority?: boolean;
-  // Pour stabiliser la mise en page
   width?: number;
   height?: number;
-  // Alternative au duo width/height
-  aspect?: number; // ex: 16/9 -> 16/9
+  aspect?: number;
 };
 
 function buildUrl(base: string, w: number) {
-  // Si c’est une image Pexels (ou autre service qui accepte ?w=), optimise
   if (base.includes('pexels.com')) {
     const url = new URL(base);
     url.searchParams.set('auto', 'compress');
@@ -26,11 +20,10 @@ function buildUrl(base: string, w: number) {
     url.searchParams.set('w', String(w));
     return url.toString();
   }
-  // Sinon, laisse tel quel (le navigateur choisira via srcSet même si répétitif)
   return base;
 }
 
-const DEFAULT_WIDTHS = [480, 800, 1200];
+const DEFAULT_WIDTHS = [320, 480, 800, 1200];
 
 const SmartImage: React.FC<SmartImageProps> = ({
   src,
@@ -43,14 +36,14 @@ const SmartImage: React.FC<SmartImageProps> = ({
   height,
   aspect,
 }) => {
-  const srcSet = widths.map(w => `${buildUrl(src, w)} ${w}w`).join(', ');
-  // Choix d’une source par défaut raisonnable
-  const defaultW = Math.min(800, widths[widths.length - 1]);
+  const normalizedWidths = Array.from(new Set(widths)).sort((a, b) => a - b);
+  const supportsUrlWidth = src.includes('pexels.com');
+  const srcSet = supportsUrlWidth
+    ? normalizedWidths.map((w) => `${buildUrl(src, w)} ${w}w`).join(', ')
+    : undefined;
+  const defaultW = Math.min(800, normalizedWidths[normalizedWidths.length - 1]);
   const defaultSrc = buildUrl(src, defaultW);
-
-  // fetchpriority n’est pas encore typé partout, donc on le pose via any
-  const fetchPriority = priority ? { fetchPriority: 'high' as any } : {};
-
+  const fetchPriority = priority ? ({ fetchPriority: 'high' } as const) : {};
   const style = aspect && !width && !height ? { aspectRatio: String(aspect) } : undefined;
 
   return (
@@ -58,7 +51,7 @@ const SmartImage: React.FC<SmartImageProps> = ({
       <img
         src={defaultSrc}
         srcSet={srcSet}
-        sizes={sizes}
+        sizes={srcSet ? sizes : undefined}
         alt={alt}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
